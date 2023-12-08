@@ -7,16 +7,6 @@ type Map = [(String, (String, String))]
 toTuple :: [a] -> (a, a)
 toTuple [a, b] = (a, b)
 
-runLengthEncode :: (Eq a) => [a] -> [(Int, a)]
-runLengthEncode [] = []
-runLengthEncode (x : xs) = runLengthEncode' (1, x) xs
-
-runLengthEncode' :: (Eq a) => (Int, a) -> [a] -> [(Int, a)]
-runLengthEncode' acc [] = [acc]
-runLengthEncode' (count, char) (x : xs)
-  | char == x = runLengthEncode' (count + 1, char) xs
-  | otherwise = (count, char) : runLengthEncode' (1, x) xs
-
 parseInput :: String -> (String, Map)
 parseInput content = (instructions, zip (map head nodes) (map (toTuple . tail) nodes))
   where
@@ -54,15 +44,6 @@ update n cycle current
       Nothing -> Just n
       c -> c
   | otherwise = cycle
-
-factorize :: Int -> [(Int, Int)]
-factorize = runLengthEncode . factorize' 2
-
-factorize' :: Int -> Int -> [Int]
-factorize' min' n
-  | n `mod` min' == 0 = min' : factorize' 2 (n `div` min')
-  | min' ^ 2 > n = [n]
-  | otherwise = factorize' (min' + 1) n
 
 main = do
   content <- readFile "../input.txt"
