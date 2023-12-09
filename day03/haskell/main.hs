@@ -1,13 +1,16 @@
 import Data.Array
+import Data.Bifunctor (first)
 import Data.Char (isDigit)
 import Data.List
 import Debug.Trace
-import Data.Bifunctor (first)
 
 type Schema = Array (Int, Int) Char
 
 parseInput :: String -> Array (Int, Int) Char
-parseInput content = array ((0, 0), (rows - 1, cols - 1)) $ concat $ zipWith (\i line -> zipWith (\j c -> ((i, j), c)) [0 ..] line) [0 ..] (lines content)
+parseInput content =
+  array ((0, 0), (rows - 1, cols - 1)) $
+    concat $
+      zipWith (\i line -> zipWith (\j c -> ((i, j), c)) [0 ..] line) [0 ..] (lines content)
   where
     rows = length $ lines content
     cols = length $ head $ lines content
@@ -65,20 +68,25 @@ calculateGearRatios = calculateGearRatios' []
 
 calculateGearRatios' :: [((Int, Int), Int)] -> [((Int, Int), Int)] -> [((Int, Int), Int)]
 calculateGearRatios' acc [] = acc
-calculateGearRatios' acc ((ind, num):xs) = calculateGearRatios' updatedAcc xs
-    where
-        updatedAcc = case lookup ind acc of
-            (Just number) -> (ind, number * num) : filter ((/= ind) . fst) acc
-            Nothing -> (ind, num) : acc
+calculateGearRatios' acc ((ind, num) : xs) = calculateGearRatios' updatedAcc xs
+  where
+    updatedAcc = case lookup ind acc of
+      (Just number) -> (ind, number * num) : filter ((/= ind) . fst) acc
+      Nothing -> (ind, num) : acc
+
+partTwo :: Schema -> Int
+partTwo schema =
+  let numbers = splitNumbers $ zip (indices schema) (elems schema)
+      gearNumbers = map (nub . concatMap (filter ((== '*') . (schema !)) . neighborIndices schema . fst)) numbers
+      gearPositions = map fst $ filter ((== 2) . snd) $ count $ concat gearNumbers
+   in sum $
+        map snd $
+          calculateGearRatios $
+            map (first head) $
+              filter (any (`elem` gearPositions) . fst) $
+                zip gearNumbers (map (read . map snd) numbers :: [Int])
 
 main = do
   content <- readFile "../input.txt"
   let schema = parseInput content
   print $ partOne schema
-
-  let numbers = splitNumbers $ zip (indices schema) (elems schema)
-  let gearNumbers = map (nub . concatMap (filter ((== '*') . (schema !)) . neighborIndices schema . fst)) numbers
-
-  let gearPositions = map fst $ filter ((== 2) . snd) $ count $ concat gearNumbers 
-  -- print $ zip gearNumbers (map (read . map snd) numbers::[Int])
-  print $ sum $ map snd $ calculateGearRatios $ map (first head) $ filter (any (`elem` gearPositions) . fst) $ zip gearNumbers (map (read . map snd) numbers :: [Int])
