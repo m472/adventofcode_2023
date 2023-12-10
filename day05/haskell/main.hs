@@ -1,4 +1,5 @@
 import Data.List (nub, sort)
+import System.Posix (sleep)
 
 splitOn :: (Eq a, Show a) => a -> [a] -> [[a]]
 splitOn = splitOn' []
@@ -61,8 +62,6 @@ partTwo (seeds, ranges) = print $ minimum $ map (\seed -> foldl convert seed ran
     discontinuities = nub $ sort $ foldr (\r cum -> map (`convertBack` r) cum ++ concatMap computeDiscontinuities r) [] ranges
     seedRanges = pairs seeds
     inputs = sort $ concatMap (\(start, len) -> start : start + len : filter (\x -> x >= start && x < start + len) discontinuities) seedRanges
-
--- print $ sort $ map (`convertBack` (ranges !! (length ranges - 1))) $ concatMap computeDiscontinuities (last ranges)
 
 main = do
   content <- readFile "../input.txt"
