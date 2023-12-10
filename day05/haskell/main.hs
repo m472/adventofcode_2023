@@ -13,7 +13,7 @@ splitOn' acc c (x : xs)
 pairs :: [a] -> [(a, a)]
 pairs [] = []
 pairs [_] = error "uneven length in pairs"
-pairs (a:b:rest) = (a, b) : pairs rest
+pairs (a : b : rest) = (a, b) : pairs rest
 
 headWithDefault :: a -> [a] -> a
 headWithDefault def [] = def
@@ -48,16 +48,14 @@ parseInput content = (seeds, ranges)
     ranges = map (map parseRange . tail) $ splitOn "" $ drop 2 contentLines
 
 computeDiscontinuities :: (Int, Int, Int) -> [Int]
-computeDiscontinuities (dstStart, srcStart, len) = [srcStart - 1, srcStart, srcStart + len, srcStart + len + 1]
-
-propagateDiscontinuity :: (Int, Int, Int) -> Int -> Int
-propagateDiscontinuity (dstStart, srcStart, len) n = if n >= dstStart && n < dstStart + len then n - (dstStart - srcStart) else n
+computeDiscontinuities (_, srcStart, len) = [srcStart - 1, srcStart, srcStart + len, srcStart + len + 1]
 
 partOne :: ([Int], [[(Int, Int, Int)]]) -> IO ()
 partOne (seeds, ranges) = print $ minimum $ map (\seed -> foldl convert seed ranges) seeds
 
 partTwo :: ([Int], [[(Int, Int, Int)]]) -> IO ()
-partTwo (seeds, ranges) = print $ minimum $ map (\seed -> foldl convert seed ranges) inputs
+partTwo (seeds, ranges) = do
+  print $ minimum $ map (\seed -> foldl convert seed ranges) inputs
   where
     discontinuities = nub $ sort $ foldr (\r cum -> map (`convertBack` r) cum ++ concatMap computeDiscontinuities r) [] ranges
     seedRanges = pairs seeds
