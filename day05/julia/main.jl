@@ -44,7 +44,7 @@ function convertBack(x::Int64, ranges::Vector{Range})::Int64
 end
 
 function calculateDiscontinuities(ranges::Vector{Range})::Vector{Int64}
-    [n for r in ranges for n in [r.sourceStart - 1, r.sourceStart, r.sourceStart + r.length, r.sourceStart + r.length + 1]]
+    [n for r in ranges for n in [r.sourceStart, r.sourceStart + r.length]]
 end
 
 function partOne(seeds::Vector{Int64}, transforms::Vector{Vector{Range}})::Int64
@@ -82,5 +82,8 @@ function partTwo(seeds::Vector{Int64}, transforms::Vector{Vector{Range}})
 end
 
 seeds, transforms = readInput("../input.txt")
-println("Part One: ", partOne(seeds, transforms))
-println("Part Two: ", partTwo(seeds, transforms))
+println("Part One Solution: ", partOne(seeds, transforms))
+
+println("Part Two time:")
+@time partTwo(seeds, transforms)
+println("Part Two Solution: ", partTwo(seeds, transforms))
